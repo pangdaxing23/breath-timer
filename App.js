@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // paddingLeft: 15,
-    // paddingRight: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
   },
 });

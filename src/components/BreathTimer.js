@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {
   View,
-  // Text,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -21,6 +20,7 @@ const RING_GAP = 15;
 const TIMER_DOT_RADIUS = 8;
 const SCALE_FACTOR = 0.7;
 const SOME_BIG_NUMBER = 100;
+const DURATION = 10000;
 
 const rotationMap = {
   2: [0, 180],
@@ -47,8 +47,6 @@ export default class BreathTimer extends Component<Props> {
     fill: 0,
     rotation: new Animated.Value(0),
     scale: new Animated.Value(SCALE_FACTOR),
-    lastRotationValue: 0,
-    // scale: new Animated.Value(1),
   };
 
   rotations = rotationMap[this.props.numberOfDots];
@@ -61,28 +59,41 @@ export default class BreathTimer extends Component<Props> {
 
   onPress = () => {
     if (toggler.next().value) {
-      Animated.parallel([
-        Animated.timing(this.state.rotation, {
-          // fromValue: this.state.rotation,
-          toValue: SOME_BIG_NUMBER,
-          duration:
-            SOME_BIG_NUMBER * 3000 - 3000 * this.state.rotation.__getValue(),
-          easing: Easing.linear,
-        }),
-        Animated.sequence([
-          Animated.timing(this.state.scale, {
-            toValue: 0.8,
-            duration: 1000 - 1000 * this.state.scale.__getValue(),
+      Animated.loop(
+        Animated.parallel([
+          Animated.timing(this.state.rotation, {
+            toValue: 1,
+            duration: DURATION,
             easing: Easing.linear,
           }),
-          Animated.timing(this.state.scale, {
-            toValue: 0.7,
-            delay: 1000,
-            duration: 1000 - 1000 * this.state.rotation.__getValue(),
-            easing: Easing.linear,
-          }),
+          Animated.sequence([
+            Animated.timing(this.state.scale, {
+              toValue: SCALE_FACTOR * 1.1,
+              duration: DURATION * 0.4,
+              easing: Easing.linear,
+            }),
+            Animated.timing(this.state.scale, {
+              toValue: SCALE_FACTOR,
+              duration: DURATION * 0.4,
+              delay: DURATION * 0.2,
+              easing: Easing.linear,
+            }),
+          ]),
         ]),
-      ]).start();
+      ).start(() => {
+        Animated.parallel([
+          Animated.timing(this.state.rotation, {
+            toValue: 1,
+            duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
+            easing: Easing.linear,
+          }),
+          Animated.timing(this.state.scale, {
+            toValue: SCALE_FACTOR,
+            duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
+            easing: Easing.linear,
+          }),
+        ]).start();
+      });
     } else {
       this.state.rotation.stopAnimation();
       this.state.scale.stopAnimation();
@@ -90,25 +101,25 @@ export default class BreathTimer extends Component<Props> {
   };
 
   render() {
-    console.log("hello");
     const { size, width, arcSweepAngle, numberOfDots } = this.props;
     const rotations = rotationMap[numberOfDots];
     const interpolatedRotation = this.state.rotation.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 360],
     });
-    const interpolatedScale = this.state.rotation.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.9, 0.91],
+    const interpolatedScale = this.state.scale.interpolate({
+      inputRange: [SCALE_FACTOR, SCALE_FACTOR * 1.1],
+      outputRange: [
+        size / 2 - size / 2 * SCALE_FACTOR,
+        size / 2 - size / 2 * SCALE_FACTOR * 1.1,
+      ],
     });
 
     const cx = size / 2;
     const cy = size / 2;
     const fill = 50;
-    const groupX = size / 2 - size / 2 * this.state.scale;
-    const groupY = size / 2 - size / 2 * this.state.scale;
-
-    // const groupTransform = new Transform().scale(this.state.scale);
+    const groupX = size / 2 - size / 2 * SCALE_FACTOR;
+    const groupY = size / 2 - size / 2 * SCALE_FACTOR;
 
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
@@ -119,7 +130,11 @@ export default class BreathTimer extends Component<Props> {
           }}
         >
           <Surface width={size} height={size}>
-            <AnimatedGroup x={groupX} y={groupY} scale={this.state.scale}>
+            <AnimatedGroup
+              x={interpolatedScale}
+              y={interpolatedScale}
+              scale={this.state.scale}
+            >
               <Circle // Outer ring
                 radius={size / 2}
                 cx={size / 2}

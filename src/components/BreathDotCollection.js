@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, Platform, ART } from "react-native";
 const { Surface, Shape, Path, Group, Transform } = ART;
-import HalfCircle from "./HalfCircle";
+import Circle from "./Circle";
 
 type Props = {};
 export default class BreathDotCollection extends Component<Props> {
@@ -22,11 +22,11 @@ export default class BreathDotCollection extends Component<Props> {
     return (
       <Group>
         {rotations.map(i => (
-          <HalfCircle
+          <Circle
             key={i}
             {...this.props}
             rotation={i}
-            orientation={"down"}
+            // orientation={"down"}
           />
         ))}
       </Group>

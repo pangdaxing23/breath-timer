@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { View, Platform, Animated, ART } from "react-native";
 const { Surface, Shape, Path, Group, Transform } = ART;
-import HalfCircle from "./HalfCircle";
-const AnimatedHalfCircle = Animated.createAnimatedComponent(HalfCircle);
+import Circle from "./Circle";
+const AnimatedHalfCircle = Animated.createAnimatedComponent(Circle);
 
 type Props = {};
 export default class TimerDot extends Component<Props> {

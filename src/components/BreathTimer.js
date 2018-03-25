@@ -15,12 +15,14 @@ import Circle from "./Circle";
 import TimerDot from "./TimerDot";
 import BreathDotCollection from "./BreathDotCollection";
 
-const OUTER_RING_WIDTH = 3;
-const RING_GAP = 15;
-const TIMER_DOT_RADIUS = 8;
-const SCALE_FACTOR = 0.7;
-const SOME_BIG_NUMBER = 100;
-const DURATION = 8000;
+import {
+  OUTER_RING_WIDTH,
+  RING_GAP,
+  TIMER_DOT_RADIUS,
+  SCALE_FACTOR,
+  ROTATION_MAP,
+  DURATION,
+} from "../constants";
 
 const calculateDurations = rotations => {
   return rotations.concat([360]).reduce((acc, curr, index, arr) => {
@@ -29,12 +31,6 @@ const calculateDurations = rotations => {
     }
     return acc;
   }, []);
-};
-
-const rotationMap = {
-  2: [0, 180],
-  3: [0, 135, 225],
-  4: [0, 90, 180, 270],
 };
 
 function* toggle() {
@@ -58,7 +54,7 @@ export default class BreathTimer extends Component<Props> {
     scale: new Animated.Value(SCALE_FACTOR),
   };
 
-  rotations = rotationMap[this.props.numberOfDots];
+  rotations = ROTATION_MAP[this.props.numberOfDots];
 
   durations = calculateDurations(this.rotations);
 
@@ -81,13 +77,13 @@ export default class BreathTimer extends Component<Props> {
             Animated.timing(this.state.scale, {
               toValue: SCALE_FACTOR * 1.1,
               duration: this.durations[0],
-              easing: Easing.linear,
+              easing: Easing.out(Easing.ease),
             }),
             Animated.timing(this.state.scale, {
               toValue: SCALE_FACTOR,
               duration: this.durations[2],
               delay: this.durations[1],
-              easing: Easing.linear,
+              easing: Easing.inOut(Easing.ease),
             }),
           ]),
         ]),
@@ -113,7 +109,7 @@ export default class BreathTimer extends Component<Props> {
 
   render() {
     const { size, width, arcSweepAngle, numberOfDots } = this.props;
-    const rotations = rotationMap[numberOfDots];
+    const rotations = ROTATION_MAP[numberOfDots];
     const interpolatedRotation = this.state.rotation.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 360],

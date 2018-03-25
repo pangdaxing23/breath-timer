@@ -17,7 +17,6 @@ export default class BreathDotCollection extends Component<Props> {
       fill,
       rotations,
     } = this.props;
-    // const breathDots = ;
 
     return (
       <Group>

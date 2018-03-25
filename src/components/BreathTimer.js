@@ -143,7 +143,7 @@ export default class BreathTimer extends Component<Props> {
   };
 
   render() {
-    const { size, width, arcSweepAngle, numberOfDots } = this.props;
+    const { size, width, arcSweepAngle, fontSize, numberOfDots } = this.props;
     const rotations = ROTATION_MAP[numberOfDots];
     const interpolatedRotation = this.state.rotation.interpolate({
       inputRange: [0, 1],
@@ -211,17 +211,17 @@ export default class BreathTimer extends Component<Props> {
                 rotation={interpolatedRotation}
               />
               <Text
-                font={`17px "Helvetica Neue", "Helvetica", Arial`}
+                font={`${fontSize}px "Helvetica Neue", "Helvetica", Arial`}
                 alignment={"center"}
                 fill={"white"}
                 x={cx}
-                y={cy}
+                y={cy - fontSize / 2}
               >
                 {this.state.text}
               </Text>
             </AnimatedGroup>
             <Text
-              font={`17px "Helvetica Neue", "Helvetica", Arial`}
+              font={`19px "Helvetica Neue", "Helvetica", Arial`}
               alignment={"center"}
               fill={"white"}
               x={cx}

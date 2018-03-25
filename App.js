@@ -13,7 +13,7 @@ export default class App extends Component<Props> {
         colors={["#4c669f", "#3b5998", "#192f6a"]}
         style={[styles.container]}
       >
-        <BreathTimer size={width} width={5} numberOfDots={3} />
+        <BreathTimer size={width} width={5} fontSize={30} numberOfDots={3} />
       </LinearGradient>
     );
   }

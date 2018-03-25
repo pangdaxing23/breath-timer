@@ -20,7 +20,16 @@ const RING_GAP = 15;
 const TIMER_DOT_RADIUS = 8;
 const SCALE_FACTOR = 0.7;
 const SOME_BIG_NUMBER = 100;
-const DURATION = 10000;
+const DURATION = 8000;
+
+const calculateDurations = rotations => {
+  return rotations.concat([360]).reduce((acc, curr, index, arr) => {
+    if (index > 0) {
+      acc.push(DURATION / (360 / (curr - arr[index - 1])));
+    }
+    return acc;
+  }, []);
+};
 
 const rotationMap = {
   2: [0, 180],
@@ -51,6 +60,8 @@ export default class BreathTimer extends Component<Props> {
 
   rotations = rotationMap[this.props.numberOfDots];
 
+  durations = calculateDurations(this.rotations);
+
   componentWillMount() {}
 
   componentDidMount() {}
@@ -69,13 +80,13 @@ export default class BreathTimer extends Component<Props> {
           Animated.sequence([
             Animated.timing(this.state.scale, {
               toValue: SCALE_FACTOR * 1.1,
-              duration: DURATION * 0.4,
+              duration: this.durations[0],
               easing: Easing.linear,
             }),
             Animated.timing(this.state.scale, {
               toValue: SCALE_FACTOR,
-              duration: DURATION * 0.4,
-              delay: DURATION * 0.2,
+              duration: this.durations[2],
+              delay: this.durations[1],
               easing: Easing.linear,
             }),
           ]),

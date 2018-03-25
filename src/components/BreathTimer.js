@@ -52,11 +52,72 @@ export default class BreathTimer extends Component<Props> {
     fill: 0,
     rotation: new Animated.Value(0),
     scale: new Animated.Value(SCALE_FACTOR),
+    text: "ready?",
+    time: 0,
   };
 
   rotations = ROTATION_MAP[this.props.numberOfDots];
 
   durations = calculateDurations(this.rotations);
+
+  timer = null;
+
+  interval = null;
+
+  cycleText = () => {
+    this.setState({ text: "inhale" });
+    this.timer = setTimeout(() => {
+      this.setState({ text: "hold" });
+      this.timer = setTimeout(() => {
+        this.setState({ text: "exhale" });
+      }, this.durations[1]);
+    }, this.durations[0]);
+  };
+
+  tick = () => {
+    this.setState({
+      time: this.state.time + 1,
+    });
+  };
+
+  animate = () => {
+    Animated.loop(
+      Animated.parallel([
+        Animated.timing(this.state.rotation, {
+          toValue: 1,
+          duration: DURATION,
+          easing: Easing.linear,
+        }),
+        Animated.sequence([
+          Animated.timing(this.state.scale, {
+            toValue: SCALE_FACTOR * 1.1,
+            duration: this.durations[0],
+            easing: Easing.out(Easing.ease),
+          }),
+          Animated.timing(this.state.scale, {
+            toValue: SCALE_FACTOR,
+            duration: this.durations[2],
+            delay: this.durations[1],
+            easing: Easing.inOut(Easing.ease),
+          }),
+        ]),
+      ]),
+    ).start(() => {
+      const clockwise = this.state.rotation.__getValue() > 0.5;
+      Animated.parallel([
+        Animated.timing(this.state.rotation, {
+          toValue: clockwise ? 1 : 0,
+          duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
+          easing: Easing.linear,
+        }),
+        Animated.timing(this.state.scale, {
+          toValue: SCALE_FACTOR,
+          duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
+          easing: Easing.linear,
+        }),
+      ]).start();
+    });
+  };
 
   componentWillMount() {}
 
@@ -66,44 +127,18 @@ export default class BreathTimer extends Component<Props> {
 
   onPress = () => {
     if (toggler.next().value) {
-      Animated.loop(
-        Animated.parallel([
-          Animated.timing(this.state.rotation, {
-            toValue: 1,
-            duration: DURATION,
-            easing: Easing.linear,
-          }),
-          Animated.sequence([
-            Animated.timing(this.state.scale, {
-              toValue: SCALE_FACTOR * 1.1,
-              duration: this.durations[0],
-              easing: Easing.out(Easing.ease),
-            }),
-            Animated.timing(this.state.scale, {
-              toValue: SCALE_FACTOR,
-              duration: this.durations[2],
-              delay: this.durations[1],
-              easing: Easing.inOut(Easing.ease),
-            }),
-          ]),
-        ]),
-      ).start(() => {
-        Animated.parallel([
-          Animated.timing(this.state.rotation, {
-            toValue: 1,
-            duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
-            easing: Easing.linear,
-          }),
-          Animated.timing(this.state.scale, {
-            toValue: SCALE_FACTOR,
-            duration: 400 - 400 * (this.state.rotation.__getValue() / 360),
-            easing: Easing.linear,
-          }),
-        ]).start();
-      });
+      this.cycleText();
+      this.interval = setInterval(() => {
+        this.cycleText();
+      }, DURATION);
+      this.timeInterval = setInterval(this.tick, 1000);
+      this.animate();
     } else {
       this.state.rotation.stopAnimation();
       this.state.scale.stopAnimation();
+      this.setState({ text: "ready?" });
+      clearInterval(this.interval);
+      clearTimeout(this.timer);
     }
   };
 
@@ -182,11 +217,19 @@ export default class BreathTimer extends Component<Props> {
                 x={cx}
                 y={cy}
               >
-                breath
+                {this.state.text}
               </Text>
             </AnimatedGroup>
+            <Text
+              font={`17px "Helvetica Neue", "Helvetica", Arial`}
+              alignment={"center"}
+              fill={"white"}
+              x={cx}
+              y={cy}
+            >
+              {this.state.time}
+            </Text>
           </Surface>
-          {/* <Text style={[styles.text, { width: size / 2 }]}>breath</Text> */}
         </View>
       </TouchableWithoutFeedback>
     );

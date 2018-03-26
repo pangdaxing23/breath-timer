@@ -16,6 +16,7 @@ export default class App extends Component<Props> {
       >
         <BreathTimer
           size={width}
+          outerRingRadius={155}
           width={5}
           fontSize={30}
           numberOfDots={3}

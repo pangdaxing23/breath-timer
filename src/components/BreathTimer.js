@@ -156,9 +156,9 @@ export default class BreathTimer extends Component<Props> {
   };
 
   render() {
-    console.log("segmentDurations", this.segmentDurations);
     const {
       size,
+      outerRingRadius,
       width,
       arcSweepAngle,
       fontSize,
@@ -167,10 +167,15 @@ export default class BreathTimer extends Component<Props> {
       endScaleFactor,
     } = this.props;
     const checkpointRotations = ROTATION_MAP[numberOfDots];
+
+    const cx = size / 2;
+    const cy = size / 2;
+
     const interpolatedRotation = this.state.timerRotation.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 360],
     });
+
     const interpolatedScale = this.state.scale.interpolate({
       inputRange: [initalScaleFactor, endScaleFactor],
       outputRange: [
@@ -179,20 +184,42 @@ export default class BreathTimer extends Component<Props> {
       ],
     });
 
-    const cx = size / 2;
-    const cy = size / 2;
-    const groupX = size / 2 - size / 2 * initalScaleFactor;
-    const groupY = size / 2 - size / 2 * initalScaleFactor;
-
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View>
           <Surface width={size} height={size}>
+            <Group x={0} y={0}>
+              <OuterRing // Outer ring
+                radius={outerRingRadius}
+                cx={size / 2}
+                cy={size / 2}
+                strokeWidth={OUTER_RING_WIDTH}
+                stroke={"green"}
+                numberOfDots={numberOfDots}
+              />
+
+              <BreathDotCollection
+                radius={BREATH_DOT_RADIUS}
+                stroke={"white"}
+                fill={"white"}
+                cx={cx}
+                cy={cy - outerRingRadius}
+                originX={cx}
+                originY={cy}
+                rotations={checkpointRotations}
+              />
+              <TimerDot
+                radius={TIMER_DOT_RADIUS}
+                stroke={"black"}
+                fill={"black"}
+                cx={cx}
+                cy={cy - outerRingRadius}
+                originX={cx}
+                originY={cy}
+                rotation={interpolatedRotation}
+              />
+            </Group>
+
             <AnimatedGroup
               x={interpolatedScale}
               y={interpolatedScale}
@@ -204,34 +231,7 @@ export default class BreathTimer extends Component<Props> {
                 cy={size / 2}
                 fill={"green"}
               />
-              <OuterRing // Outer ring
-                radius={size / 2}
-                cx={size / 2}
-                cy={size / 2}
-                strokeWidth={OUTER_RING_WIDTH}
-                stroke={"green"}
-                numberOfDots={numberOfDots}
-              />
-              <BreathDotCollection
-                radius={BREATH_DOT_RADIUS}
-                stroke={"white"}
-                fill={"white"}
-                cx={cx}
-                cy={0}
-                originX={cx}
-                originY={cy}
-                rotations={checkpointRotations}
-              />
-              <TimerDot
-                radius={TIMER_DOT_RADIUS}
-                stroke={"black"}
-                fill={"black"}
-                cx={cx}
-                cy={0}
-                originX={cx}
-                originY={cy}
-                rotation={interpolatedRotation}
-              />
+
               <Text
                 font={`${fontSize}px "Helvetica Neue", "Helvetica", Arial`}
                 alignment={"center"}
@@ -262,11 +262,4 @@ BreathTimer.defaultProps = {
   timerRotation: TIMER_ROTATION,
 };
 
-const styles = StyleSheet.create({
-  text: {
-    color: "white",
-    fontSize: 17,
-    position: "absolute",
-    textAlign: "center",
-  },
-});
+const styles = StyleSheet.create({});

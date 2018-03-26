@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View, Dimensions } from "react-native";
 import BreathTimer from "./src/components/BreathTimer";
 import LinearGradient from "react-native-linear-gradient";
+import { DURATION, SCALE_FACTOR } from "./src/constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,7 +14,15 @@ export default class App extends Component<Props> {
         colors={["#4c669f", "#3b5998", "#192f6a"]}
         style={[styles.container]}
       >
-        <BreathTimer size={width} width={5} fontSize={30} numberOfDots={3} />
+        <BreathTimer
+          size={width}
+          width={5}
+          fontSize={30}
+          numberOfDots={3}
+          duration={DURATION}
+          initalScaleFactor={SCALE_FACTOR * 0.9}
+          endScaleFactor={SCALE_FACTOR * 1.2}
+        />
       </LinearGradient>
     );
   }

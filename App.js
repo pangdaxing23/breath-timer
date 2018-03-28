@@ -11,18 +11,20 @@ export default class App extends Component<Props> {
   render() {
     return (
       <LinearGradient
-        colors={["#4c669f", "#3b5998", "#192f6a"]}
+        // colors={["#4c669f", "#3b5998", "#192f6a"]}
+        colors={["#f2fcfe", "#1c92d2"]}
         style={[styles.container]}
       >
         <BreathTimer
           size={width}
-          outerRingRadius={155}
+          outerRingRadius={width / 2 - 40}
           width={5}
-          fontSize={30}
+          fontSize={20}
           numberOfDots={3}
+          // timerRotation={0}
           duration={DURATION}
-          initalScaleFactor={SCALE_FACTOR * 0.9}
-          endScaleFactor={SCALE_FACTOR * 1.2}
+          initalScaleFactor={SCALE_FACTOR * 0.6}
+          endScaleFactor={SCALE_FACTOR * 1.13}
         />
       </LinearGradient>
     );

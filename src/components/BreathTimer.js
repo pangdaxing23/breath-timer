@@ -8,13 +8,16 @@ import {
   Easing,
   ART,
 } from "react-native";
-const { Surface, Shape, Path, Group, Transform, Text } = ART;
+const { Surface, Shape, Path, Group, Transform, Text, LinearGradient } = ART;
 const AnimatedGroup = Animated.createAnimatedComponent(Group);
 
 import Circle from "./Circle";
 import OuterRing from "./OuterRing";
 import TimerDot from "./TimerDot";
 import BreathDotCollection from "./BreathDotCollection";
+
+import { toggle, timeout } from "../util";
+const toggler = toggle();
 
 import {
   OUTER_RING_WIDTH,
@@ -36,15 +39,6 @@ const calculateDurations = (totalDuration, rotations) => {
     }, []);
 };
 
-function* toggle() {
-  while (true) {
-    yield true;
-    yield false;
-  }
-}
-
-const toggler = toggle();
-
 type Props = {
   size: Number,
   width: Number,
@@ -55,7 +49,7 @@ export default class BreathTimer extends Component<Props> {
   state = {
     timerRotation: new Animated.Value(this.props.timerRotation),
     scale: new Animated.Value(this.props.initalScaleFactor),
-    text: "ready?",
+    text: "Begin",
     time: 0,
   };
 
@@ -70,14 +64,16 @@ export default class BreathTimer extends Component<Props> {
 
   interval = null;
 
-  cycleText = () => {
-    this.setState({ text: "inhale" });
-    this.timer = setTimeout(() => {
-      this.setState({ text: "hold" });
-      this.timer = setTimeout(() => {
-        this.setState({ text: "exhale" });
-      }, this.segmentDurations[1]);
-    }, this.segmentDurations[0]);
+  cycleText = async () => {
+    this.setState({ text: "Inhale" });
+    await timeout(this.segmentDurations[0]);
+    this.setState({ text: "Hold" });
+    await timeout(this.segmentDurations[1]);
+    this.setState({ text: "Exhale" });
+    if (this.props.numberOfDots === 4) {
+      await timeout(this.segmentDurations[2]);
+      this.setState({ text: "Hold" });
+    }
   };
 
   tick = () => {
@@ -128,7 +124,9 @@ export default class BreathTimer extends Component<Props> {
           duration: 400 - 400 * (this.state.timerRotation.__getValue() / 360),
           easing: Easing.linear,
         }),
-      ]).start();
+      ]).start(() => {
+        this.setState({ text: "Begin" });
+      });
     });
   };
 
@@ -149,7 +147,7 @@ export default class BreathTimer extends Component<Props> {
     } else {
       this.state.timerRotation.stopAnimation();
       this.state.scale.stopAnimation();
-      this.setState({ text: "ready?" });
+
       clearInterval(this.interval);
       clearTimeout(this.timer);
     }
@@ -194,14 +192,14 @@ export default class BreathTimer extends Component<Props> {
                 cx={size / 2}
                 cy={size / 2}
                 strokeWidth={OUTER_RING_WIDTH}
-                stroke={"green"}
+                stroke={secondaryColor}
                 numberOfDots={numberOfDots}
               />
 
               <BreathDotCollection
                 radius={BREATH_DOT_RADIUS}
-                stroke={"white"}
-                fill={"white"}
+                stroke={secondaryColor}
+                fill={primaryColor}
                 cx={cx}
                 cy={cy - outerRingRadius}
                 originX={cx}
@@ -210,8 +208,8 @@ export default class BreathTimer extends Component<Props> {
               />
               <TimerDot
                 radius={TIMER_DOT_RADIUS}
-                stroke={"black"}
-                fill={"black"}
+                stroke={timerDotColor}
+                fill={timerDotColor}
                 cx={cx}
                 cy={cy - outerRingRadius}
                 originX={cx}
@@ -229,19 +227,18 @@ export default class BreathTimer extends Component<Props> {
                 radius={size / 2 - RING_GAP}
                 cx={size / 2}
                 cy={size / 2}
-                fill={"green"}
+                fill={primaryColor}
               />
-
-              <Text
-                font={`${fontSize}px "Helvetica Neue", "Helvetica", Arial`}
-                alignment={"center"}
-                fill={"white"}
-                x={cx}
-                y={cy - fontSize / 2}
-              >
-                {this.state.text}
-              </Text>
             </AnimatedGroup>
+            <Text
+              font={`${fontSize}px "Helvetica", sans-serif-light`}
+              alignment={"center"}
+              fill={"white"}
+              x={cx}
+              y={cy - fontSize / 2}
+            >
+              {this.state.text}
+            </Text>
             <Text
               font={`19px "Helvetica Neue", "Helvetica", Arial`}
               alignment={"center"}
@@ -261,5 +258,9 @@ export default class BreathTimer extends Component<Props> {
 BreathTimer.defaultProps = {
   timerRotation: TIMER_ROTATION,
 };
+
+const primaryColor = "#ef473a";
+const secondaryColor = "#cb2d3e";
+const timerDotColor = "#cb2d3e";
 
 const styles = StyleSheet.create({});

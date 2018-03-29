@@ -50,7 +50,8 @@ export default class BreathTimer extends Component<Props> {
     timerRotation: new Animated.Value(this.props.timerRotation),
     scale: new Animated.Value(this.props.initalScaleFactor),
     text: "Begin",
-    time: 0,
+    elapsed: 0,
+    returningToStart: false,
   };
 
   checkpointRotations = ROTATION_MAP[this.props.numberOfDots];
@@ -60,25 +61,28 @@ export default class BreathTimer extends Component<Props> {
     this.checkpointRotations,
   );
 
-  timer = null;
+  textTimer = null;
 
-  interval = null;
+  textInterval = null;
 
-  cycleText = async () => {
+  cycleText = () => {
     this.setState({ text: "Inhale" });
-    await timeout(this.segmentDurations[0]);
-    this.setState({ text: "Hold" });
-    await timeout(this.segmentDurations[1]);
-    this.setState({ text: "Exhale" });
-    if (this.props.numberOfDots === 4) {
-      await timeout(this.segmentDurations[2]);
+    this.textTimer = setTimeout(() => {
       this.setState({ text: "Hold" });
-    }
+      this.textTimer = setTimeout(() => {
+        this.setState({ text: "Exhale" });
+        if (this.props.numberOfDots === 4) {
+          this.textTimer = setTimeout(() => {
+            this.setState({ text: "Hold" });
+          }, this.segmentDurations[2]);
+        }
+      }, this.segmentDurations[1]);
+    }, this.segmentDurations[0]);
   };
 
   tick = () => {
     this.setState({
-      time: this.state.time + 1,
+      elapsed: this.state.elapsed + 1,
     });
   };
 
@@ -116,16 +120,16 @@ export default class BreathTimer extends Component<Props> {
       Animated.parallel([
         Animated.timing(this.state.timerRotation, {
           toValue: clockwise ? 1 + timerRotation : 0 + timerRotation,
-          duration: 400 - 400 * (this.state.timerRotation.__getValue() / 360),
+          duration: 250 - 250 * (this.state.timerRotation.__getValue() / 360),
           easing: Easing.linear,
         }),
         Animated.timing(this.state.scale, {
           toValue: initalScaleFactor,
-          duration: 400 - 400 * (this.state.timerRotation.__getValue() / 360),
+          duration: 250 - 250 * (this.state.timerRotation.__getValue() / 360),
           easing: Easing.linear,
         }),
       ]).start(() => {
-        this.setState({ text: "Begin" });
+        this.setState({ text: "Begin", returningToStart: false });
       });
     });
   };
@@ -137,19 +141,24 @@ export default class BreathTimer extends Component<Props> {
   componentWillUpdate() {}
 
   onPress = () => {
+    if (this.state.returningToStart) {
+      return;
+    }
     if (toggler.next().value) {
+      this.timeInterval = setInterval(this.tick, 1000);
       this.cycleText();
-      this.interval = setInterval(() => {
+      this.textInterval = setInterval(() => {
         this.cycleText();
       }, this.props.duration);
-      this.timeInterval = setInterval(this.tick, 1000);
       this.animate();
     } else {
+      this.setState({ returningToStart: true });
       this.state.timerRotation.stopAnimation();
       this.state.scale.stopAnimation();
 
-      clearInterval(this.interval);
-      clearTimeout(this.timer);
+      clearInterval(this.timeInterval);
+      clearInterval(this.textInterval);
+      clearTimeout(this.textTimer);
     }
   };
 
@@ -244,9 +253,9 @@ export default class BreathTimer extends Component<Props> {
               alignment={"center"}
               fill={"white"}
               x={cx}
-              y={cy}
+              y={size - 19}
             >
-              {this.state.time}
+              {`${this.state.elapsed}`}
             </Text>
           </Surface>
         </View>

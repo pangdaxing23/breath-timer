@@ -5,6 +5,6 @@ export function* toggle() {
   }
 }
 
-export const timeout = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+// export const timeout = ms => {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// };

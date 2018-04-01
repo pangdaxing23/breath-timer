@@ -11,7 +11,9 @@
     "react-native": "0.54.2",
     "react-native-circular-progress": "^0.2.0",
     "react-native-linear-gradient": "^2.4.0",
-    "react-native-progress": "^3.4.0"
+    "react-native-progress": "^3.4.0",
+    "react-native-swiper": "^1.5.13",
+    "react-navigation": "^1.5.9"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

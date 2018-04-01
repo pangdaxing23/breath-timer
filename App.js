@@ -11,64 +11,45 @@ type Props = {};
 export default class App extends Component<Props> {
   render() {
     return (
-      <LinearGradient
-        // colors={["#4c669f", "#3b5998", "#192f6a"]}
-        colors={["#f2fcfe", "#1c92d2"]}
-        style={[styles.container]}
+      <Swiper
+        style={styles.wrapper}
+        showsButtons={false}
+        showsPagination={false}
       >
-        <Swiper style={styles.wrapper} showsButtons={false}>
-          <View style={styles.slide1}>
-            <BreathTimer
-              size={width}
-              outerRingRadius={width / 2 - 40}
-              width={5}
-              fontSize={20}
-              numberOfDots={2}
-              // timerRotation={0}
-              duration={DURATION}
-              initalScaleFactor={SCALE_FACTOR * 0.6}
-              endScaleFactor={SCALE_FACTOR * 1.13}
-            />
-          </View>
-          <View style={styles.slide2}>
-            <BreathTimer
-              size={width}
-              outerRingRadius={width / 2 - 40}
-              width={5}
-              fontSize={20}
-              numberOfDots={3}
-              // timerRotation={0}
-              duration={DURATION}
-              initalScaleFactor={SCALE_FACTOR * 0.6}
-              endScaleFactor={SCALE_FACTOR * 1.13}
-            />
-          </View>
-          <View style={styles.slide3}>
-            <BreathTimer
-              size={width}
-              outerRingRadius={width / 2 - 40}
-              width={5}
-              fontSize={20}
-              numberOfDots={4}
-              // timerRotation={0}
-              duration={DURATION}
-              initalScaleFactor={SCALE_FACTOR * 0.6}
-              endScaleFactor={SCALE_FACTOR * 1.13}
-            />
-          </View>
-        </Swiper>
-        {/* <BreathTimer
-          size={width}
-          outerRingRadius={width / 2 - 40}
-          width={5}
-          fontSize={20}
-          numberOfDots={2}
-          // timerRotation={0}
-          duration={DURATION}
-          initalScaleFactor={SCALE_FACTOR * 0.6}
-          endScaleFactor={SCALE_FACTOR * 1.13}
-        /> */}
-      </LinearGradient>
+        <View style={styles.slide1}>
+          <BreathTimer
+            size={width}
+            outerRingRadius={width / 2 - 40}
+            width={5}
+            primaryColor={"#ef473a"}
+            secondaryColor={"#cb2d3e"}
+            numberOfDots={2}
+            duration={DURATION}
+          />
+        </View>
+        <View style={styles.slide2}>
+          <BreathTimer
+            size={width}
+            outerRingRadius={width / 2 - 40}
+            width={5}
+            primaryColor={"#2C3E50"}
+            secondaryColor={"#4CA1AF"}
+            numberOfDots={3}
+            duration={DURATION}
+          />
+        </View>
+        <View style={styles.slide3}>
+          <BreathTimer
+            size={width}
+            outerRingRadius={width / 2 - 40}
+            width={5}
+            primaryColor={"#00bf8f"}
+            secondaryColor={"#001510"}
+            numberOfDots={4}
+            duration={DURATION}
+          />
+        </View>
+      </Swiper>
     );
   }
 }
@@ -95,12 +76,5 @@ const styles = StyleSheet.create({
   },
   spacer: {
     padding: 10,
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // paddingLeft: 15,
-    // paddingRight: 15,
   },
 });

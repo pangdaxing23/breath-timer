@@ -153,6 +153,16 @@ export default class BreathTimer extends Component<Props> {
     ).start(this.returnToStartAnimation);
   };
 
+  stopAnimation = () => {
+    this.setState({ returningToStart: true });
+    this.state.timerRotation.stopAnimation();
+    this.state.scale.stopAnimation();
+
+    clearInterval(this.timeInterval);
+    clearInterval(this.textInterval);
+    clearTimeout(this.textTimer);
+  };
+
   componentWillMount() {}
 
   componentDidMount() {}
@@ -171,13 +181,7 @@ export default class BreathTimer extends Component<Props> {
       }, this.props.duration);
       this.animate();
     } else {
-      this.setState({ returningToStart: true });
-      this.state.timerRotation.stopAnimation();
-      this.state.scale.stopAnimation();
-
-      clearInterval(this.timeInterval);
-      clearInterval(this.textInterval);
-      clearTimeout(this.textTimer);
+      this.stopAnimation();
     }
   };
 
@@ -191,7 +195,10 @@ export default class BreathTimer extends Component<Props> {
       numberOfDots,
       initalScaleFactor,
       endScaleFactor,
+      primaryColor,
+      secondaryColor,
     } = this.props;
+    const timerDotColor = primaryColor;
     const checkpointRotations = ROTATION_MAP[numberOfDots];
 
     const cx = size / 2;
@@ -285,6 +292,11 @@ export default class BreathTimer extends Component<Props> {
 
 BreathTimer.defaultProps = {
   timerRotation: TIMER_ROTATION,
+  fontSize: 20,
+  numberOfDots: 3,
+  duration: 9000,
+  initalScaleFactor: 0.7 * 0.6,
+  endScaleFactor: 0.7 * 1.13,
 };
 
 const primaryColor = "#ef473a";

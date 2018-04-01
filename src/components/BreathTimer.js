@@ -66,24 +66,72 @@ export default class BreathTimer extends Component<Props> {
   textInterval = null;
 
   cycleText = () => {
+    const { numberOfDots } = this.props;
     this.setState({ text: "Inhale" });
-    this.textTimer = setTimeout(() => {
-      this.setState({ text: "Hold" });
+    if (numberOfDots === 2) {
       this.textTimer = setTimeout(() => {
         this.setState({ text: "Exhale" });
-        if (this.props.numberOfDots === 4) {
-          this.textTimer = setTimeout(() => {
-            this.setState({ text: "Hold" });
-          }, this.segmentDurations[2]);
-        }
-      }, this.segmentDurations[1]);
-    }, this.segmentDurations[0]);
+      }, this.segmentDurations[0]);
+    } else {
+      this.textTimer = setTimeout(() => {
+        this.setState({ text: "Hold" });
+        this.textTimer = setTimeout(() => {
+          this.setState({ text: "Exhale" });
+          if (numberOfDots === 4) {
+            this.textTimer = setTimeout(() => {
+              this.setState({ text: "Hold" });
+            }, this.segmentDurations[2]);
+          }
+        }, this.segmentDurations[1]);
+      }, this.segmentDurations[0]);
+    }
   };
 
   tick = () => {
     this.setState({
       elapsed: this.state.elapsed + 1,
     });
+  };
+
+  returnToStartAnimation = () => {
+    const { timerRotation, initalScaleFactor } = this.props;
+    const clockwise =
+      this.state.timerRotation.__getValue() > 0.5 + timerRotation;
+    Animated.parallel([
+      Animated.timing(this.state.timerRotation, {
+        toValue: clockwise ? 1 + timerRotation : 0 + timerRotation,
+        duration: 300 - 300 * (this.state.timerRotation.__getValue() / 360),
+        easing: Easing.linear,
+      }),
+      Animated.timing(this.state.scale, {
+        toValue: initalScaleFactor,
+        duration: 300 - 300 * (this.state.timerRotation.__getValue() / 360),
+        easing: Easing.linear,
+      }),
+    ]).start(() => {
+      this.setState({ text: "Begin", returningToStart: false });
+    });
+  };
+
+  scaleAnimation = () => {
+    const { initalScaleFactor, endScaleFactor, numberOfDots } = this.props;
+    const scaleDownDuration =
+      numberOfDots === 2 ? this.segmentDurations[1] : this.segmentDurations[2];
+    const scaleDownDelay = numberOfDots === 2 ? 0 : this.segmentDurations[1];
+
+    return Animated.sequence([
+      Animated.timing(this.state.scale, {
+        toValue: endScaleFactor,
+        duration: this.segmentDurations[0],
+        easing: Easing.out(Easing.ease),
+      }),
+      Animated.timing(this.state.scale, {
+        toValue: initalScaleFactor,
+        duration: scaleDownDuration,
+        delay: scaleDownDelay,
+        easing: Easing.inOut(Easing.ease),
+      }),
+    ]);
   };
 
   animate = () => {
@@ -100,38 +148,9 @@ export default class BreathTimer extends Component<Props> {
           duration: duration,
           easing: Easing.linear,
         }),
-        Animated.sequence([
-          Animated.timing(this.state.scale, {
-            toValue: endScaleFactor,
-            duration: this.segmentDurations[0],
-            easing: Easing.out(Easing.ease),
-          }),
-          Animated.timing(this.state.scale, {
-            toValue: initalScaleFactor,
-            duration: this.segmentDurations[2],
-            delay: this.segmentDurations[1],
-            easing: Easing.inOut(Easing.ease),
-          }),
-        ]),
+        this.scaleAnimation(),
       ]),
-    ).start(() => {
-      const clockwise =
-        this.state.timerRotation.__getValue() > 0.5 + timerRotation;
-      Animated.parallel([
-        Animated.timing(this.state.timerRotation, {
-          toValue: clockwise ? 1 + timerRotation : 0 + timerRotation,
-          duration: 250 - 250 * (this.state.timerRotation.__getValue() / 360),
-          easing: Easing.linear,
-        }),
-        Animated.timing(this.state.scale, {
-          toValue: initalScaleFactor,
-          duration: 250 - 250 * (this.state.timerRotation.__getValue() / 360),
-          easing: Easing.linear,
-        }),
-      ]).start(() => {
-        this.setState({ text: "Begin", returningToStart: false });
-      });
-    });
+    ).start(this.returnToStartAnimation);
   };
 
   componentWillMount() {}

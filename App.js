@@ -20,7 +20,7 @@ export default class App extends Component<Props> {
           outerRingRadius={width / 2 - 40}
           width={5}
           fontSize={20}
-          numberOfDots={3}
+          numberOfDots={2}
           // timerRotation={0}
           duration={DURATION}
           initalScaleFactor={SCALE_FACTOR * 0.6}

@@ -3,6 +3,7 @@ import Swiper from "react-native-swiper";
 import { Platform, StyleSheet, Text, View, Dimensions } from "react-native";
 import BreathTimer from "./src/components/BreathTimer";
 import LinearGradient from "react-native-linear-gradient";
+import BellowsBreathPanel from "./src/components/BellowsBreathPanel";
 import { DURATION, SCALE_FACTOR } from "./src/constants";
 
 const { width, height } = Dimensions.get("window");
@@ -16,17 +17,7 @@ export default class App extends Component<Props> {
         showsButtons={false}
         showsPagination={false}
       >
-        <View style={styles.slide1}>
-          <BreathTimer
-            size={width}
-            outerRingRadius={width / 2 - 40}
-            width={5}
-            primaryColor={"#ef473a"}
-            secondaryColor={"#cb2d3e"}
-            numberOfDots={2}
-            duration={DURATION}
-          />
-        </View>
+        <BellowsBreathPanel width={width} />
         <View style={styles.slide2}>
           <BreathTimer
             size={width}

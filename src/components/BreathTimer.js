@@ -15,6 +15,8 @@ import Circle from "./Circle";
 import OuterRing from "./OuterRing";
 import TimerDot from "./TimerDot";
 import BreathDotCollection from "./BreathDotCollection";
+import CenterText from "./CenterText";
+import ElapsedTime from "./ElapsedTime";
 
 import { toggle, timeout } from "../util";
 const toggler = toggle();
@@ -163,12 +165,6 @@ export default class BreathTimer extends Component<Props> {
     clearTimeout(this.textTimer);
   };
 
-  componentWillMount() {}
-
-  componentDidMount() {}
-
-  componentWillUpdate() {}
-
   onPress = () => {
     if (this.state.returningToStart) {
       return;
@@ -265,25 +261,14 @@ export default class BreathTimer extends Component<Props> {
                 fill={primaryColor}
               />
             </AnimatedGroup>
-            <Text
-              font={`${fontSize}px "Helvetica", sans-serif-light`}
-              alignment={"center"}
-              fill={"white"}
-              x={cx}
-              y={cy - fontSize / 2}
-            >
-              {this.state.text}
-            </Text>
-            <Text
-              font={`19px "Helvetica Neue", "Helvetica", Arial`}
-              alignment={"center"}
-              fill={"white"}
-              x={cx}
-              y={size - 19}
-            >
-              {`${this.state.elapsed}`}
-            </Text>
+            <CenterText
+              fontSize={fontSize}
+              cx={cx}
+              cy={cy}
+              text={this.state.text}
+            />
           </Surface>
+          <ElapsedTime elapsed={this.state.elapsed} cx={size / 2} size={size} />
         </View>
       </TouchableWithoutFeedback>
     );

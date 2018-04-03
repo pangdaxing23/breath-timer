@@ -1,4 +1,4 @@
-package com.artpractice;
+package com.breathtimer;
 
 import android.app.Application;
 

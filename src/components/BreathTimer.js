@@ -230,6 +230,7 @@ export default class BreathTimer extends Component<Props> {
       endScaleFactor,
       primaryColor,
       secondaryColor,
+      showCheckmarks,
     } = this.props;
     const timerDotColor = primaryColor;
 
@@ -262,27 +263,30 @@ export default class BreathTimer extends Component<Props> {
                 stroke={secondaryColor}
                 numberOfDots={numberOfDots}
               />
-
-              <BreathDotCollection
-                radius={BREATH_DOT_RADIUS}
-                stroke={secondaryColor}
-                fill={primaryColor}
-                cx={cx}
-                cy={cy - outerRingRadius}
-                originX={cx}
-                originY={cy}
-                rotations={this.checkpointRotations}
-              />
-              <TimerDot
-                radius={TIMER_DOT_RADIUS}
-                stroke={timerDotColor}
-                fill={timerDotColor}
-                cx={cx}
-                cy={cy - outerRingRadius}
-                originX={cx}
-                originY={cy}
-                rotation={interpolatedRotation}
-              />
+              {showCheckmarks ? (
+                <Group>
+                  <BreathDotCollection
+                    radius={BREATH_DOT_RADIUS}
+                    stroke={secondaryColor}
+                    fill={primaryColor}
+                    cx={cx}
+                    cy={cy - outerRingRadius}
+                    originX={cx}
+                    originY={cy}
+                    rotations={this.checkpointRotations}
+                  />
+                  <TimerDot
+                    radius={TIMER_DOT_RADIUS}
+                    stroke={timerDotColor}
+                    fill={timerDotColor}
+                    cx={cx}
+                    cy={cy - outerRingRadius}
+                    originX={cx}
+                    originY={cy}
+                    rotation={interpolatedRotation}
+                  />
+                </Group>
+              ) : null}
             </Group>
 
             <AnimatedGroup

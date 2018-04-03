@@ -9,7 +9,7 @@ export default class ElapsedTime extends Component<Props> {
     const timeString = moment.duration({ seconds: elapsed }).asSeconds();
     return (
       <View style={styles.wrapper}>
-        <Text style={styles.text}>{`${timeString}`}</Text>
+        <Text style={styles.text}>{`Time practiced: ${timeString}`}</Text>
       </View>
     );
   }
@@ -22,6 +22,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: 22,
+    fontSize: 16,
   },
 });

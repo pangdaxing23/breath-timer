@@ -9,6 +9,7 @@ export default class BellowsBreathPanel extends Component<Props> {
     const { width } = this.props;
     return (
       <View style={styles.slide2}>
+        <Text style={styles.text}>Bellows Breathing</Text>
         <BreathTimer
           type={"bellows"}
           size={width}
@@ -24,6 +25,9 @@ export default class BellowsBreathPanel extends Component<Props> {
 }
 
 const styles = StyleSheet.create({
+  text: {
+    fontSize: 18,
+  },
   slide2: {
     flex: 1,
     justifyContent: "center",

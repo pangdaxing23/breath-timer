@@ -9,13 +9,14 @@ export default class BoxBreathPanel extends Component<Props> {
     const { width } = this.props;
     return (
       <View style={styles.slide1}>
+        <Text style={styles.text}>Box Breathing</Text>
         <BreathTimer
+          type={"478"}
           size={width}
           outerRingRadius={width / 2 - 40}
           width={5}
           primaryColor={"#2C3E50"}
           secondaryColor={"#4CA1AF"}
-          type={"478"}
           numberOfDots={3}
           duration={DURATION}
         />
@@ -25,6 +26,9 @@ export default class BoxBreathPanel extends Component<Props> {
 }
 
 const styles = StyleSheet.create({
+  text: {
+    fontSize: 18,
+  },
   slide1: {
     flex: 1,
     justifyContent: "center",

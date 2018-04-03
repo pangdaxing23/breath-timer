@@ -4,6 +4,8 @@ import { Platform, StyleSheet, Text, View, Dimensions } from "react-native";
 import BreathTimer from "./src/components/BreathTimer";
 import LinearGradient from "react-native-linear-gradient";
 import BellowsBreathPanel from "./src/components/BellowsBreathPanel";
+import FourSevenEightPanel from "./src/components/FourSevenEightPanel";
+import BoxBreathPanel from "./src/components/BoxBreathPanel";
 import { DURATION, SCALE_FACTOR } from "./src/constants";
 
 const { width, height } = Dimensions.get("window");
@@ -17,29 +19,9 @@ export default class App extends Component<Props> {
         showsButtons={false}
         showsPagination={false}
       >
+        <BoxBreathPanel width={width} />
         <BellowsBreathPanel width={width} />
-        <View style={styles.slide2}>
-          <BreathTimer
-            size={width}
-            outerRingRadius={width / 2 - 40}
-            width={5}
-            primaryColor={"#2C3E50"}
-            secondaryColor={"#4CA1AF"}
-            numberOfDots={3}
-            duration={DURATION}
-          />
-        </View>
-        <View style={styles.slide3}>
-          <BreathTimer
-            size={width}
-            outerRingRadius={width / 2 - 40}
-            width={5}
-            primaryColor={"#00bf8f"}
-            secondaryColor={"#001510"}
-            numberOfDots={4}
-            duration={DURATION}
-          />
-        </View>
+        <FourSevenEightPanel width={width} />
       </Swiper>
     );
   }

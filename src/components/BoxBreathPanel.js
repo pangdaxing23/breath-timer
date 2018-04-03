@@ -4,18 +4,19 @@ import BreathTimer from "./BreathTimer";
 
 import { DURATION } from "../constants";
 
-export default class BellowsBreathPanel extends Component<Props> {
+export default class BoxBreathPanel extends Component<Props> {
   render() {
     const { width } = this.props;
     return (
-      <View style={styles.slide2}>
+      <View style={styles.slide1}>
         <BreathTimer
-          type={"bellows"}
           size={width}
           outerRingRadius={width / 2 - 40}
           width={5}
-          primaryColor={"#ef473a"}
-          secondaryColor={"#cb2d3e"}
+          primaryColor={"#2C3E50"}
+          secondaryColor={"#4CA1AF"}
+          type={"478"}
+          numberOfDots={3}
           duration={DURATION}
         />
       </View>
@@ -24,10 +25,10 @@ export default class BellowsBreathPanel extends Component<Props> {
 }
 
 const styles = StyleSheet.create({
-  slide2: {
+  slide1: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#97CAE5",
+    backgroundColor: "#9DD6EB",
   },
 });

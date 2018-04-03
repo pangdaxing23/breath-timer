@@ -28,17 +28,47 @@ import {
   BREATH_DOT_RADIUS,
   ROTATION_MAP,
   TIMER_ROTATION,
+  RETURN_DURATION,
 } from "../constants";
 
-const calculateDurations = (totalDuration, rotations) => {
-  return rotations
-    .concat([rotations[0] + 360])
-    .reduce((acc, curr, index, arr) => {
-      if (index > 0) {
-        acc.push(totalDuration / (360 / (curr - arr[index - 1])));
+const durationsMap = {
+  "478": {
+    inhaleDuration: 4000,
+    holdFullDuration: 7000,
+    exhaleDuration: 8000,
+    holdEmptyDuration: 0,
+  },
+  box: {
+    inhaleDuration: 4000,
+    holdFullDuration: 4000,
+    exhaleDuration: 4000,
+    holdEmptyDuration: 4000,
+  },
+  bellows: {
+    inhaleDuration: 600,
+    holdFullDuration: 0,
+    exhaleDuration: 600,
+    holdEmptyDuration: 0,
+  },
+};
+
+const calculateRotations = (segments, startingRotation) => {
+  segments = Object.values(segments);
+  const totalDuration = segments.reduce((acc, curr) => {
+    return acc + curr;
+  }, 0);
+
+  return segments.reduce((rotations, duration, index, arr) => {
+    if (index > 0) {
+      if (duration === 0) {
+        return rotations;
       }
-      return acc;
-    }, []);
+      rotations.push(duration * 360 / totalDuration + rotations[index - 1]);
+    } else {
+      rotations.push(duration * 360 / totalDuration);
+    }
+    return rotations;
+  }, []);
 };
 
 type Props = {
@@ -56,36 +86,46 @@ export default class BreathTimer extends Component<Props> {
     returningToStart: false,
   };
 
-  checkpointRotations = ROTATION_MAP[this.props.numberOfDots];
+  segments = durationsMap[this.props.type];
 
-  segmentDurations = calculateDurations(
-    this.props.duration,
-    this.checkpointRotations,
-  );
+  duration = Object.keys(this.segments).reduce((sum, key) => {
+    return sum + this.segments[key];
+  }, 0);
+
+  checkpointRotations = calculateRotations(this.segments, 0);
 
   textTimer = null;
 
   textInterval = null;
 
   cycleText = () => {
-    const { numberOfDots } = this.props;
+    const { type } = this.props;
     this.setState({ text: "Inhale" });
-    if (numberOfDots === 2) {
-      this.textTimer = setTimeout(() => {
-        this.setState({ text: "Exhale" });
-      }, this.segmentDurations[0]);
-    } else {
-      this.textTimer = setTimeout(() => {
-        this.setState({ text: "Hold" });
+    switch (type) {
+      case "bellows":
         this.textTimer = setTimeout(() => {
           this.setState({ text: "Exhale" });
-          if (numberOfDots === 4) {
+        }, this.segments.inhaleDuration);
+        break;
+      case "478":
+        this.textTimer = setTimeout(() => {
+          this.setState({ text: "Hold" });
+          this.textTimer = setTimeout(() => {
+            this.setState({ text: "Exhale" });
+          }, this.segments.holdFullDuration);
+        }, this.segments.inhaleDuration);
+        break;
+      case "box":
+        this.textTimer = setTimeout(() => {
+          this.setState({ text: "Hold" });
+          this.textTimer = setTimeout(() => {
+            this.setState({ text: "Exhale" });
             this.textTimer = setTimeout(() => {
               this.setState({ text: "Hold" });
-            }, this.segmentDurations[2]);
-          }
-        }, this.segmentDurations[1]);
-      }, this.segmentDurations[0]);
+            }, this.segments.holdEmptyDuration);
+          }, this.segments.holdFullDuration);
+        }, this.segments.inhaleDuration);
+        break;
     }
   };
 
@@ -102,12 +142,16 @@ export default class BreathTimer extends Component<Props> {
     Animated.parallel([
       Animated.timing(this.state.timerRotation, {
         toValue: clockwise ? 1 + timerRotation : 0 + timerRotation,
-        duration: 300 - 300 * (this.state.timerRotation.__getValue() / 360),
+        duration:
+          RETURN_DURATION -
+          RETURN_DURATION * (this.state.timerRotation.__getValue() / 360),
         easing: Easing.linear,
       }),
       Animated.timing(this.state.scale, {
         toValue: initalScaleFactor,
-        duration: 300 - 300 * (this.state.timerRotation.__getValue() / 360),
+        duration:
+          RETURN_DURATION -
+          RETURN_DURATION * (this.state.timerRotation.__getValue() / 360),
         easing: Easing.linear,
       }),
     ]).start(() => {
@@ -117,37 +161,29 @@ export default class BreathTimer extends Component<Props> {
 
   scaleAnimation = () => {
     const { initalScaleFactor, endScaleFactor, numberOfDots } = this.props;
-    const scaleDownDuration =
-      numberOfDots === 2 ? this.segmentDurations[1] : this.segmentDurations[2];
-    const scaleDownDelay = numberOfDots === 2 ? 0 : this.segmentDurations[1];
 
     return Animated.sequence([
       Animated.timing(this.state.scale, {
         toValue: endScaleFactor,
-        duration: this.segmentDurations[0],
+        duration: this.segments.inhaleDuration,
         easing: Easing.out(Easing.ease),
       }),
       Animated.timing(this.state.scale, {
         toValue: initalScaleFactor,
-        duration: scaleDownDuration,
-        delay: scaleDownDelay,
+        duration: this.segments.exhaleDuration,
+        delay: this.segments.holdFullDuration,
         easing: Easing.inOut(Easing.ease),
       }),
     ]);
   };
 
   animate = () => {
-    const {
-      duration,
-      timerRotation,
-      initalScaleFactor,
-      endScaleFactor,
-    } = this.props;
+    const { timerRotation, initalScaleFactor, endScaleFactor } = this.props;
     Animated.loop(
       Animated.parallel([
         Animated.timing(this.state.timerRotation, {
           toValue: 1 + timerRotation,
-          duration: duration,
+          duration: this.duration,
           easing: Easing.linear,
         }),
         this.scaleAnimation(),
@@ -169,12 +205,13 @@ export default class BreathTimer extends Component<Props> {
     if (this.state.returningToStart) {
       return;
     }
+
     if (toggler.next().value) {
       this.timeInterval = setInterval(this.tick, 1000);
       this.cycleText();
       this.textInterval = setInterval(() => {
         this.cycleText();
-      }, this.props.duration);
+      }, this.duration);
       this.animate();
     } else {
       this.stopAnimation();
@@ -195,7 +232,6 @@ export default class BreathTimer extends Component<Props> {
       secondaryColor,
     } = this.props;
     const timerDotColor = primaryColor;
-    const checkpointRotations = ROTATION_MAP[numberOfDots];
 
     const cx = size / 2;
     const cy = size / 2;
@@ -235,7 +271,7 @@ export default class BreathTimer extends Component<Props> {
                 cy={cy - outerRingRadius}
                 originX={cx}
                 originY={cy}
-                rotations={checkpointRotations}
+                rotations={this.checkpointRotations}
               />
               <TimerDot
                 radius={TIMER_DOT_RADIUS}
@@ -276,7 +312,7 @@ export default class BreathTimer extends Component<Props> {
 }
 
 BreathTimer.defaultProps = {
-  timerRotation: TIMER_ROTATION,
+  timerRotation: 0,
   fontSize: 20,
   numberOfDots: 3,
   duration: 9000,
